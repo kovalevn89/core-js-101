@@ -20,15 +20,13 @@
  *    console.log(r.height);      // => 20
  *    console.log(r.getArea());   // => 200
  */
-class Rectangle {
-  constructor(width, height) {
-    this.width = width;
-    this.height = height;
-  }
+function Rectangle(width, height) {
+  this.width = width;
+  this.height = height;
 
-  getArea() {
-    return this.height * this.width;
-  }
+  Rectangle.prototype.getArea = function func() {
+    return this.width * this.height;
+  };
 }
 
 
