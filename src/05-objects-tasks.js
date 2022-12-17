@@ -118,48 +118,87 @@ function fromJSON(proto, json) {
  *  For more examples see unit tests.
  */
 
+// 1 => element(type),
+// 2 => id,
+// 3 => class,        --- Can be several occurrences
+// 4 => attribute,    --- Can be several occurrences
+// 5 => pseudo-class  --- Can be several occurrences
+// 6 => pseudo-element
+
 const cssSelectorBuilder = {
   selector: '',
+  objId: 0,
 
   element(value) {
-    this.selector += value;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = this.selector + value;
+    obj.objId = 1;
+    this.validate(obj.objId);
+    return obj;
   },
 
   id(value) {
-    this.selector = `${this.selector}#${value}`;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${this.selector}#${value}`;
+    obj.objId = 2;
+    this.validate(obj.objId);
+    return obj;
   },
 
   class(value) {
-    this.selector = `${this.selector}.${value}`;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${this.selector}.${value}`;
+    obj.objId = 3;
+    this.validate(obj.objId);
+    return obj;
   },
 
   attr(value) {
-    this.selector = `${this.selector}[${value}]`;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${this.selector}[${value}]`;
+    obj.objId = 4;
+    this.validate(obj.objId);
+    return obj;
   },
 
   pseudoClass(value) {
-    this.selector = `${this.selector}:${value}`;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${this.selector}:${value}`;
+    obj.objId = 5;
+    this.validate(obj.objId);
+    return obj;
   },
 
   pseudoElement(value) {
-    this.selector = `${this.selector}::${value}`;
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${this.selector}::${value}`;
+    obj.objId = 6;
+    this.validate(obj.objId);
+    return obj;
   },
 
   combine(selector1, combinator, selector2) {
-    console.log(`1= ${selector1.stringify()} 2= ${combinator} 3=${selector2.stringify()}`);
-    return this;
+    const obj = Object.create(this);
+    obj.selector = `${selector1.stringify()} ${combinator} ${selector2.stringify()}`;
+    return obj;
   },
 
   stringify() {
-    const temp = this.selector;
-    this.selector = '';
-    return temp;
+    return this.selector;
+  },
+
+  validate(nextIndex) {
+    const currentIndex = this.objId;
+
+    if (currentIndex === nextIndex) {
+      if (nextIndex === 1 || nextIndex === 2 || nextIndex === 6) {
+        throw new Error('Element, id and pseudo-element should not occur more then one time inside the selector');
+      }
+    }
+
+    if (currentIndex > nextIndex) {
+      throw new Error('Selector parts should be arranged in the following order: element, id, class, attribute, pseudo-class, pseudo-element');
+    }
   },
 };
 
